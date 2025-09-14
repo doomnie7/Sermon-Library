@@ -1,0 +1,618 @@
+/* Dark mode styles */
+:root.dark {
+  /* Dark color scheme - improved contrast */
+  --background-color: #0d1117; /* Very dark background */
+  --surface-color: #161b22; /* Dark surface */
+  --surface-hover: #21262d; /* Lighter hover */
+  --border-color: #30363d; /* Visible border */
+  --text-primary: #f0f6fc; /* Very bright white for main text */
+  --text-secondary: #c9d1d9; /* Bright gray for secondary text */
+  --text-muted: #8b949e; /* Medium gray for muted text */
+  --accent-color: #58a6ff; /* Bright blue accent */
+  --accent-hover: #1f6feb; /* Darker blue on hover */
+  --success-color: #3fb950; /* Bright green */
+  --warning-color: #d29922; /* Orange */
+  --error-color: #f85149; /* Bright red */
+  --shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+  --shadow-hover: 0 4px 16px rgba(0, 0, 0, 0.6);
+}
+
+/* Light mode (default) */
+:root:not(.dark) {
+  --background-color: #ffffff;
+  --surface-color: #f8f9fa;
+  --surface-hover: #e9ecef;
+  --border-color: #dee2e6;
+  --text-primary: #212529;
+  --text-secondary: #495057;
+  --text-muted: #6c757d;
+  --accent-color: #007bff;
+  --accent-hover: #0056b3;
+  --success-color: #28a745;
+  --warning-color: #ffc107;
+  --error-color: #dc3545;
+  --shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  --shadow-hover: 0 4px 16px rgba(0, 0, 0, 0.15);
+}
+
+/* Global styles using CSS variables */
+body {
+  background-color: var(--background-color);
+  color: var(--text-primary);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* App container */
+.app {
+  background-color: var(--background-color);
+  color: var(--text-primary);
+}
+
+/* Toolbar */
+.toolbar {
+  background-color: var(--surface-color);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.toolbar button {
+  background-color: var(--accent-color);
+  color: white;
+  border: none;
+  transition: background-color 0.2s ease;
+}
+
+.toolbar button:hover {
+  background-color: var(--accent-hover);
+}
+
+.toolbar input,
+.toolbar select {
+  background-color: var(--surface-color);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+}
+
+.toolbar input:focus,
+.toolbar select:focus {
+  border-color: var(--accent-color);
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.2);
+}
+
+/* Search field dropdown dark mode */
+.search-field-selector {
+  background-color: var(--surface-color);
+  border-left: 1px solid var(--border-color);
+}
+
+.search-field-selector:hover {
+  background-color: var(--background-color);
+}
+
+.search-field-label {
+  color: var(--text-primary);
+}
+
+.search-chevron {
+  color: var(--text-secondary);
+}
+
+.search-chevron:hover {
+  color: var(--text-primary);
+}
+
+.search-field-options {
+  background-color: var(--surface-color);
+  border: 1px solid var(--border-color);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+}
+
+.search-field-option {
+  color: var(--text-primary);
+}
+
+.search-field-option:hover {
+  background-color: var(--background-color);
+}
+
+/* Sidebar */
+.sidebar {
+  background-color: var(--surface-color);
+  border-right: 1px solid var(--border-color);
+}
+
+.sidebar h3 {
+  color: var(--text-primary);
+}
+
+.sidebar ul li {
+  color: var(--text-secondary);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.sidebar ul li:hover {
+  background-color: var(--surface-hover);
+}
+
+.sidebar ul li.active {
+  background-color: var(--accent-color);
+  color: white;
+}
+
+/* Sermon List */
+.sermon-list {
+  background-color: var(--background-color);
+}
+
+.sermon-list table {
+  background-color: var(--surface-color);
+  border: 1px solid var(--border-color);
+}
+
+.sermon-list th {
+  background-color: var(--surface-hover);
+  color: var(--text-primary);
+  border-bottom: 2px solid var(--border-color);
+}
+
+.sermon-list td {
+  color: var(--text-primary);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.sermon-list tr:hover {
+  background-color: var(--surface-hover);
+}
+
+.sermon-list tr:hover td {
+  color: var(--text-primary);
+}
+
+.sermon-list tr.selected {
+  background-color: var(--accent-color);
+  color: white;
+}
+
+.sermon-list tr.selected td {
+  color: white;
+}
+
+/* Ensure all table text is visible in dark mode */
+:root.dark .sermon-list table,
+:root.dark .sermon-list tbody,
+:root.dark .sermon-list tr,
+:root.dark .sermon-list td {
+  color: var(--text-primary);
+}
+
+:root.dark .sermon-list tr:hover td {
+  color: var(--text-primary);
+}
+
+/* Details view specific overrides */
+:root.dark .sermon-list .details-cell {
+  color: var(--text-primary) !important;
+}
+
+:root.dark .sermon-list .title-cell {
+  color: var(--text-primary) !important;
+}
+
+:root.dark .sermon-list .details-row:hover .details-cell {
+  color: var(--text-primary) !important;
+}
+
+:root.dark .sermon-list .details-row.selected .details-cell {
+  color: white !important;
+}
+
+:root.dark .sermon-list .details-header {
+  background-color: var(--surface-hover);
+  color: var(--text-primary);
+}
+
+/* Sermon Item Cards (Grid/List View) */
+:root.dark .sermon-item {
+  background-color: #2d3748; /* Dark grey background */
+  border-color: var(--border-color);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5); /* Stronger shadow */
+}
+
+:root.dark .sermon-item:hover {
+  background-color: #4a5568; /* Lighter grey on hover */
+  border-color: var(--accent-color);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.6); /* Enhanced shadow on hover */
+}
+
+/* Grid View Cards - Dark Mode */
+:root.dark .sermon-card {
+  background-color: #161b22; /* Same as surface-color */
+  border-color: var(--border-color);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+:root.dark .sermon-card:hover {
+  border-color: var(--accent-color);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.6);
+}
+
+/* Image area - Black background */
+:root.dark .thumbnail-container,
+:root.dark .thumbnail-placeholder {
+  background-color: #000000 !important;
+  border-color: var(--border-color);
+}
+
+:root.dark .thumbnail-image {
+  background-color: #000000 !important;
+}
+
+/* Text content area - Same as sermon card background */
+:root.dark .card-content {
+  background-color: #161b22 !important; /* Same as sermon card background */
+  color: var(--text-primary);
+  border-radius: 0 0 8px 8px; /* Round bottom corners */
+}
+
+:root.dark .sermon-card:hover .card-content {
+  background-color: #21262d !important; /* Match surface-hover */
+}
+
+/* Grid divider - Old text area color */
+:root.dark .sermon-grid-view {
+  background-color: #2d3748; /* Grid container gets the old text area color */
+}
+
+/* Grid card text elements */
+:root.dark .card-title {
+  color: var(--text-primary) !important;
+}
+
+:root.dark .card-date,
+:root.dark .card-series,
+:root.dark .card-references {
+  color: var(--text-secondary) !important;
+}
+
+:root.dark .sermon-item.selected {
+  background-color: var(--accent-color);
+  border-color: var(--accent-color);
+  color: white;
+}
+
+:root.dark .sermon-title {
+  color: var(--text-primary);
+}
+
+:root.dark .sermon-date {
+  color: var(--text-secondary);
+}
+
+:root.dark .detail-item {
+  color: var(--text-secondary);
+}
+
+:root.dark .detail-item .icon {
+  color: var(--text-muted);
+}
+
+:root.dark .sermon-tags .tag {
+  background-color: var(--surface-hover);
+  color: var(--text-primary);
+}
+
+:root.dark .cell-tag {
+  background-color: var(--surface-hover);
+  color: var(--text-secondary);
+}
+
+/* Thumbnail containers */
+:root.dark .thumbnail-container {
+  background-color: var(--surface-hover);
+  border-color: var(--border-color);
+}
+
+:root.dark .thumbnail-image {
+  background-color: var(--surface-color);
+}
+
+:root.dark .thumbnail-placeholder {
+  background-color: var(--surface-hover);
+  border-color: var(--border-color);
+  color: var(--text-muted);
+}
+
+/* Details View */
+:root.dark .details-header {
+  background-color: var(--surface-hover);
+  border-color: var(--border-color);
+  color: var(--text-primary);
+}
+
+:root.dark .details-row {
+  border-color: var(--border-color);
+}
+
+:root.dark .details-row:hover {
+  background-color: var(--surface-hover);
+}
+
+:root.dark .column-header {
+  color: var(--text-primary);
+}
+
+/* Empty State */
+:root.dark .empty-state {
+  color: var(--text-muted);
+}
+
+/* Preview Pane */
+:root.dark .preview-pane {
+  background-color: var(--surface-color);
+  border-left-color: var(--border-color);
+  color: var(--text-primary); /* Ensure base text color is set */
+}
+
+:root.dark .preview-image-section {
+  background-color: var(--surface-color);
+  border-bottom-color: var(--border-color);
+}
+
+:root.dark .preview-image-placeholder {
+  background-color: var(--surface-hover);
+  border-color: var(--border-color);
+  color: var(--text-muted);
+}
+
+:root.dark .preview-empty {
+  color: var(--text-secondary);
+}
+
+:root.dark .preview-header {
+  background-color: var(--surface-color);
+  border-bottom-color: var(--border-color);
+}
+
+:root.dark .preview-title {
+  color: var(--text-primary) !important;
+  font-weight: 600;
+}
+
+:root.dark .metadata-item {
+  color: var(--text-secondary) !important;
+}
+
+:root.dark .metadata-item .icon {
+  color: var(--text-muted);
+}
+
+:root.dark .preview-section {
+  border-bottom-color: var(--border-color);
+}
+
+:root.dark .preview-section h4 {
+  color: var(--text-primary) !important;
+  font-weight: 600;
+}
+
+:root.dark .preview-section p,
+:root.dark .preview-section div,
+:root.dark .preview-section span {
+  color: var(--text-secondary) !important; /* Make sure all text elements are visible */
+}
+
+/* Improve text contrast in dark mode */
+:root.dark .preview-content {
+  color: var(--text-secondary) !important;
+}
+
+:root.dark .preview-content strong {
+  color: var(--text-primary) !important;
+  font-weight: 600;
+}
+
+/* Preview Pane Tags - Dark Mode */
+:root.dark .preview-pane .tags .tag {
+  background-color: var(--surface-hover);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+}
+
+:root.dark .preview-pane .references .reference {
+  background-color: var(--accent-color);
+  color: white;
+  border: 1px solid var(--accent-color);
+}
+
+/* Override any inherited colors */
+:root.dark .preview-pane * {
+  color: inherit;
+}
+
+/* Specific overrides for better readability */
+:root.dark .preview-pane .metadata-item {
+  color: var(--text-secondary) !important;
+}
+
+:root.dark .preview-pane .icon {
+  color: var(--text-muted) !important;
+}
+
+.preview-pane .metadata {
+  color: var(--text-muted);
+}
+
+/* Scripture References (bubbles) - Dark Mode */
+:root.dark .reference {
+  background-color: var(--accent-color) !important;
+  color: #ffffff !important;
+  font-weight: 600;
+}
+
+/* Preaching History - Dark Mode */
+:root.dark .preaching-history {
+  color: var(--text-primary);
+}
+
+:root.dark .history-item {
+  background-color: var(--surface-hover) !important;
+  border-color: var(--border-color) !important;
+  color: var(--text-primary) !important;
+}
+
+:root.dark .history-date,
+:root.dark .history-location,
+:root.dark .history-audience {
+  color: var(--text-secondary) !important;
+}
+
+:root.dark .history-header {
+  color: var(--text-primary) !important;
+}
+
+/* Modal */
+.modal-overlay {
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+.modal {
+  background-color: var(--surface-color);
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-hover);
+}
+
+.modal h2 {
+  color: var(--text-primary);
+}
+
+.modal label {
+  color: var(--text-secondary);
+}
+
+.modal input,
+.modal textarea,
+.modal select {
+  background-color: var(--background-color);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+}
+
+.modal input:focus,
+.modal textarea:focus,
+.modal select:focus {
+  border-color: var(--accent-color);
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.2);
+}
+
+.modal button {
+  background-color: var(--accent-color);
+  color: white;
+  border: none;
+  transition: background-color 0.2s ease;
+}
+
+.modal button:hover {
+  background-color: var(--accent-hover);
+}
+
+.modal button.secondary {
+  background-color: var(--surface-hover);
+  color: var(--text-primary);
+}
+
+.modal button.secondary:hover {
+  background-color: var(--border-color);
+}
+
+/* Scrollbars (Webkit browsers) */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background-color: var(--surface-color);
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: var(--border-color);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: var(--text-muted);
+}
+
+/* Image upload and preview */
+.image-upload {
+  border: 2px dashed var(--border-color);
+  background-color: var(--surface-color);
+}
+
+.image-upload:hover {
+  border-color: var(--accent-color);
+  background-color: var(--surface-hover);
+}
+
+.image-preview img {
+  border: 1px solid var(--border-color);
+}
+
+/* Tags */
+.tag {
+  background-color: var(--accent-color);
+  color: white;
+  border-radius: 12px;
+  padding: 2px 8px;
+  font-size: 0.75rem;
+}
+
+/* Status indicators */
+.status-success {
+  color: var(--success-color);
+}
+
+.status-warning {
+  color: var(--warning-color);
+}
+
+.status-error {
+  color: var(--error-color);
+}
+
+/* Loading states */
+.loading {
+  color: var(--text-muted);
+}
+
+/* Series list */
+.series-list {
+  background-color: var(--surface-color);
+  border: 1px solid var(--border-color);
+}
+
+.series-item {
+  border-bottom: 1px solid var(--border-color);
+}
+
+.series-item:hover {
+  background-color: var(--surface-hover);
+}
+
+.series-item.selected {
+  background-color: var(--accent-color);
+  color: white;
+}
+
+/* Filter chips */
+.filter-chip {
+  background-color: var(--surface-hover);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+}
+
+.filter-chip.active {
+  background-color: var(--accent-color);
+  color: white;
+}

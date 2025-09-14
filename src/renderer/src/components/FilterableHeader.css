@@ -1,0 +1,43 @@
+.filterable-header {
+  position: relative;
+  display: inline-block;
+  width: 100%;
+}
+
+.header-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  cursor: pointer;
+  user-select: none;
+  transition: background-color 0.2s;
+  border-radius: 4px;
+}
+
+.header-content:hover {
+  background-color: #f8f9fa;
+}
+
+.header-label {
+  font-weight: 600;
+  font-size: 13px;
+  flex: 1;
+  text-align: left;
+}
+
+.header-icons {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: 8px;
+}
+
+.sort-icon {
+  color: #666;
+  transition: transform 0.2s;
+}
+
+.sort-icon.rotated {
+  transform: rotate(180deg);
+}

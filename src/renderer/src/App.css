@@ -1,0 +1,74 @@
+.app {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: #ffffff;
+}
+
+.app-content {
+  flex: 1;
+  display: flex;
+  min-height: 0; /* Important for flexbox overflow */
+}
+
+/* Layout inspired by Calibre */
+.toolbar {
+  background-color: #f8f9fa;
+  border-bottom: 1px solid #dee2e6;
+  padding: 8px 16px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  min-height: 48px;
+}
+
+.sidebar {
+  width: 250px;
+  background-color: #f8f9fa;
+  border-right: 1px solid #dee2e6;
+  overflow-y: auto;
+  flex-shrink: 0;
+}
+
+.main-content {
+  flex: 1;
+  display: flex;
+  min-height: 0;
+}
+
+.sermon-list {
+  flex: 1;
+  overflow-y: auto;
+  background-color: #ffffff;
+}
+
+.preview-pane {
+  width: 400px;
+  background-color: #f8f9fa;
+  border-left: 1px solid #dee2e6;
+  overflow-y: auto;
+  flex-shrink: 0;
+}
+
+/* Responsive design */
+@media (max-width: 1200px) {
+  .preview-pane {
+    width: 300px;
+  }
+}
+
+@media (max-width: 800px) {
+  .app-content {
+    flex-direction: column;
+  }
+  
+  .sidebar {
+    width: 100%;
+    height: 200px;
+  }
+  
+  .preview-pane {
+    width: 100%;
+    height: 200px;
+  }
+}

@@ -1,0 +1,612 @@
+import React, { useState, useEffect } from 'react';
+import Toolbar from './components/Toolbar';
+import Sidebar from './components/Sidebar';
+import SermonList from './components/SermonList';
+import SeriesList from './components/SeriesList';
+import PreviewPane from './components/PreviewPane';
+import SeriesPreview from './components/SeriesPreview';
+import SermonDetailsModal from './components/SermonDetailsModal';
+import ImageViewer from './components/ImageViewer';
+import ColumnChooser, { ColumnConfig } from './components/ColumnChooser';
+import { Sermon, Series, FilterOptions, ViewSettings, ViewType, ExpandedSermon } from './types';
+import './App.css';
+
+// Sample data - in a real app, this would come from a database
+const sampleSermons: Sermon[] = [
+  {
+    id: '1',
+    title: 'The Power of Faith',
+    speaker: 'Pastor John',
+    date: new Date('2024-01-15'),
+    series: 'Faith Series',
+    tags: ['faith', 'power', 'christian living'],
+    summary: 'An exploration of how faith transforms our daily lives and relationship with God.',
+    references: ['Hebrews 11:1', 'Romans 1:17'],
+    type: 'Sunday Service',
+    place: 'Main Sanctuary',
+    image: '/path/to/faith-image.jpg',
+    preachingHistory: [
+      { id: '1a', date: new Date('2024-01-15'), location: 'Main Sanctuary' },
+      { id: '1b', date: new Date('2024-03-10'), location: 'Youth Service' }
+    ]
+  },
+  {
+    id: '2',
+    title: 'Walking in Love',
+    speaker: 'Pastor Sarah',
+    date: new Date('2024-02-01'),
+    series: 'Love Series',
+    tags: ['love', 'relationships', 'community'],
+    summary: 'Understanding the biblical concept of love and how to practice it in our communities.',
+    references: ['1 Corinthians 13', 'John 13:34-35'],
+    type: 'Bible Study',
+    place: 'Fellowship Hall',
+    preachingHistory: [
+      { id: '2a', date: new Date('2024-02-01'), location: 'Main Sanctuary' }
+    ]
+  },
+  {
+    id: '3',
+    title: 'Hope in Difficult Times',
+    speaker: 'Pastor Michael',
+    date: new Date('2024-02-15'),
+    tags: ['hope', 'trials', 'perseverance'],
+    summary: 'Finding hope and strength during life\'s most challenging moments.',
+    references: ['Romans 5:3-5', 'James 1:2-4'],
+    type: 'Prayer Meeting',
+    place: 'Prayer Chapel',
+    preachingHistory: [
+      { id: '3a', date: new Date('2024-02-15'), location: 'Main Sanctuary' },
+      { id: '3b', date: new Date('2024-04-20'), location: 'Evening Service' },
+      { id: '3c', date: new Date('2024-07-14'), location: 'Summer Camp' }
+    ]
+  },
+  {
+    id: '4',
+    title: 'The Great Commission',
+    speaker: 'Pastor John',
+    date: new Date('2024-03-01'),
+    series: 'Evangelism Series',
+    tags: ['evangelism', 'mission', 'discipleship'],
+    summary: 'Understanding our call to make disciples of all nations.',
+    references: ['Matthew 28:16-20', 'Acts 1:8'],
+    type: 'Sunday Service',
+    place: 'Main Sanctuary',
+    preachingHistory: [
+      { id: '4a', date: new Date('2024-03-01'), location: 'Main Sanctuary' },
+      { id: '4b', date: new Date('2024-05-15'), location: 'Youth Service' },
+      { id: '4c', date: new Date('2024-08-10'), location: 'Mission Conference' },
+      { id: '4d', date: new Date('2024-11-20'), location: 'Evening Service' }
+    ]
+  },
+  {
+    id: '5',
+    title: 'Forgiveness and Grace',
+    speaker: 'Pastor Sarah',
+    date: new Date('2024-04-01'),
+    tags: ['forgiveness', 'grace', 'mercy'],
+    summary: 'The transformative power of forgiveness in our lives.',
+    references: ['Ephesians 4:32', 'Colossians 3:13'],
+    type: 'Bible Study',
+    place: 'Fellowship Hall',
+    preachingHistory: [
+      { id: '5a', date: new Date('2024-04-01'), location: 'Fellowship Hall' },
+      { id: '5b', date: new Date('2024-06-12'), location: 'Women\'s Retreat' }
+    ]
+  }
+];
+
+const sampleSeries: Series[] = [
+  {
+    id: '1',
+    title: 'Faith Series',
+    description: 'A comprehensive study on the nature and power of faith',
+    startDate: new Date('2024-01-01'),
+    endDate: new Date('2024-03-31'),
+    sermons: ['1'],
+    tags: ['faith', 'spiritual growth']
+  },
+  {
+    id: '2',
+    title: 'Love Series',
+    description: 'Exploring biblical love and its application in daily life',
+    startDate: new Date('2024-02-01'),
+    endDate: new Date('2024-04-30'),
+    sermons: ['2'],
+    tags: ['love', 'relationships']
+  }
+];
+
+function App() {
+  const [sermons, setSermons] = useState<Sermon[]>(sampleSermons);
+  const [series] = useState<Series[]>(sampleSeries);
+  const [selectedSermon, setSelectedSermon] = useState<ExpandedSermon | null>(null);
+  const [selectedSeries, setSelectedSeries] = useState<Series | null>(null);
+  const [filters, setFilters] = useState<FilterOptions>({});
+  const [viewSettings, setViewSettings] = useState<ViewSettings>({
+    sortBy: 'date',
+    sortOrder: 'desc',
+    viewMode: 'list'
+  });
+  const [currentView, setCurrentView] = useState<ViewType>('sermons');
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingSermon, setEditingSermon] = useState<Sermon | null>(null);
+  const [imageViewerOpen, setImageViewerOpen] = useState(false);
+  const [imageViewerSrc, setImageViewerSrc] = useState('');
+  const [isColumnChooserOpen, setIsColumnChooserOpen] = useState(false);
+  const [columnConfig, setColumnConfig] = useState<ColumnConfig[]>([
+    { key: 'date', label: 'Date', visible: true, order: 0 },
+    { key: 'title', label: 'Title', visible: true, order: 1 },
+    { key: 'speaker', label: 'Speaker', visible: true, order: 2 },
+    { key: 'series', label: 'Series', visible: true, order: 3 },
+    { key: 'references', label: 'Scripture', visible: true, order: 4 },
+    { key: 'place', label: 'Place', visible: true, order: 5 },
+    { key: 'tags', label: 'Tags', visible: true, order: 6 },
+    { key: 'type', label: 'Type', visible: false, order: 7 },
+    { key: 'lastModified', label: 'Modified', visible: false, order: 8 },
+    { key: 'fileSize', label: 'Size', visible: false, order: 9 },
+  ]);
+  const [sortColumn, setSortColumn] = useState<string>('');
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc' | null>(null);
+
+  useEffect(() => {
+    // Set up IPC listeners for menu actions
+    if (window.electronAPI) {
+      window.electronAPI.onMenuImportSermon(() => {
+        console.log('Import sermon requested');
+        // Handle import sermon
+      });
+
+      window.electronAPI.onMenuNewSeries(() => {
+        console.log('New series requested');
+        // Handle new series
+      });
+
+      // Cleanup listeners on unmount
+      return () => {
+        window.electronAPI.removeAllListeners('menu-import-sermon');
+        window.electronAPI.removeAllListeners('menu-new-series');
+      };
+    }
+  }, []);
+
+  // Create two sermon lists: one for unique sermons (list/grid view) and one expanded (details view)
+  // List and Grid views show only unique sermons, Details view shows all preaching instances
+  const uniqueSermons: ExpandedSermon[] = sermons.map(sermon => ({
+    ...sermon,
+    place: sermon.place || '',
+    originalDate: sermon.date,
+    preachingInstance: null,
+    // For unique view, use the most recent preaching date if available
+    date: sermon.preachingHistory && sermon.preachingHistory.length > 0 
+      ? new Date(Math.max(...sermon.preachingHistory.map(instance => instance.date.getTime())))
+      : sermon.date
+  } as ExpandedSermon));
+
+  // Expand sermons to show each preaching instance as a separate row (for details view)
+  const expandedSermons: ExpandedSermon[] = sermons.flatMap(sermon => {
+    if (sermon.preachingHistory && sermon.preachingHistory.length > 0) {
+      // Create an entry for each preaching instance
+      return sermon.preachingHistory.map(instance => ({
+        ...sermon,
+        id: `${sermon.id}-${instance.id}`, // Unique ID for each instance
+        date: instance.date,
+        place: instance.location, // Override place with instance location
+        originalDate: sermon.date, // Keep original sermon date for reference
+        preachingInstance: instance
+      } as ExpandedSermon));
+    } else {
+      // For sermons without preaching history, use the original date
+      return [{
+        ...sermon,
+        place: sermon.place || '', // Ensure place is not undefined
+        originalDate: sermon.date,
+        preachingInstance: null
+      } as ExpandedSermon];
+    }
+  });
+
+  // Choose which sermon list to use based on view mode
+  const baseSermons = viewSettings.viewMode === 'details' ? expandedSermons : uniqueSermons;
+
+  const filteredSermons = baseSermons.filter(sermon => {
+    // Apply existing filters
+    if (filters.searchTerm) {
+      const searchLower = filters.searchTerm.toLowerCase();
+      if (!sermon.title.toLowerCase().includes(searchLower) &&
+          !sermon.speaker.toLowerCase().includes(searchLower) &&
+          !sermon.summary?.toLowerCase().includes(searchLower)) {
+        return false;
+      }
+    }
+    
+    if (filters.speaker && sermon.speaker !== filters.speaker) {
+      return false;
+    }
+    
+    if (filters.series && sermon.series !== filters.series) {
+      return false;
+    }
+
+    if (filters.type && sermon.type !== filters.type) {
+      return false;
+    }
+
+    if (filters.place && sermon.place !== filters.place) {
+      return false;
+    }
+    
+    if (filters.tags && filters.tags.length > 0) {
+      const hasMatchingTag = filters.tags.some(tag => sermon.tags.includes(tag));
+      if (!hasMatchingTag) {
+        return false;
+      }
+    }
+
+    return true;
+  });
+
+  const getSermonValueForFilter = (sermon: ExpandedSermon, columnKey: string): string => {
+    try {
+      switch (columnKey) {
+        case 'date':
+          return sermon.date ? sermon.date.toISOString().split('T')[0] : ''; // Format as YYYY-MM-DD
+        case 'preachingHistory':
+          return sermon.preachingHistory ? `${sermon.preachingHistory.length}x` : '1x';
+        case 'series':
+          return sermon.series || '-';
+        case 'references':
+          return sermon.references ? sermon.references.join(', ') : '-';
+        case 'place':
+          return sermon.place || '-';
+        case 'tags':
+          return sermon.tags && Array.isArray(sermon.tags) 
+            ? sermon.tags.slice(0, 2).join(', ') + (sermon.tags.length > 2 ? ` +${sermon.tags.length - 2}` : '')
+            : '-';
+        case 'lastModified':
+          return sermon.lastModified ? sermon.lastModified.toISOString().split('T')[0] : '';
+        case 'fileSize':
+          return sermon.fileSize ? `${Math.round(sermon.fileSize / 1024)} KB` : '';
+        default:
+          const value = sermon[columnKey as keyof ExpandedSermon];
+          return String(value || '');
+      }
+    } catch (error) {
+      console.error(`Error getting value for column ${columnKey}:`, error);
+      return '';
+    }
+  };
+
+  // Helper function to convert Sermon to ExpandedSermon for compatibility
+  const sermonToExpanded = (sermon: Sermon): ExpandedSermon => ({
+    ...sermon,
+    place: sermon.place || '',
+    originalDate: sermon.date,
+    preachingInstance: null
+  });
+
+  const handleAddSermon = () => {
+    setEditingSermon(null);
+    setIsModalOpen(true);
+  };
+
+  const handleEditSermon = () => {
+    if (selectedSermon) {
+      setEditingSermon(selectedSermon);
+      setIsModalOpen(true);
+    }
+  };
+
+  const handleSermonDoubleClick = (sermon: ExpandedSermon) => {
+    setEditingSermon(sermon);
+    setIsModalOpen(true);
+  };
+
+  const handleSaveSermon = (sermon: Sermon) => {
+    if (editingSermon) {
+      // Update existing sermon
+      setSermons(prevSermons => 
+        prevSermons.map(s => s.id === sermon.id ? sermon : s)
+      );
+    } else {
+      // Add new sermon
+      setSermons(prevSermons => [...prevSermons, sermon]);
+    }
+    setSelectedSermon(sermonToExpanded(sermon));
+  };
+
+  const handleDeleteSermon = (sermonId: string) => {
+    setSermons(prevSermons => prevSermons.filter(s => s.id !== sermonId));
+    if (selectedSermon && selectedSermon.id === sermonId) {
+      setSelectedSermon(null);
+    }
+    setIsModalOpen(false);
+    setEditingSermon(null);
+  };
+
+  const handleImageClick = (imageSrc: string) => {
+    setImageViewerSrc(imageSrc);
+    setImageViewerOpen(true);
+  };
+
+  const handleSeriesSelect = (seriesTitle: string | undefined) => {
+    setFilters({ ...filters, series: seriesTitle });
+    setSelectedSeries(null);
+  };
+
+  const handleSeriesClick = (series: Series) => {
+    setSelectedSeries(series);
+    setSelectedSermon(null);
+  };
+
+  const getSeriesSermons = (series: Series) => {
+    return sermons.filter(sermon => sermon.series === series.title);
+  };
+
+
+  // Sort the filtered sermons
+  const sortedSermons = [...filteredSermons].sort((a, b) => {
+    // Apply column-based sorting if active
+    if (sortColumn && sortDirection) {
+      let comparison = 0;
+      const aValue = getSermonValueForFilter(a, sortColumn);
+      const bValue = getSermonValueForFilter(b, sortColumn);
+      
+      if (sortColumn === 'date' || sortColumn === 'lastModified') {
+        // Date comparison
+        const aDate = sortColumn === 'date' ? a.date : (a.lastModified || new Date(0));
+        const bDate = sortColumn === 'date' ? b.date : (b.lastModified || new Date(0));
+        comparison = aDate.getTime() - bDate.getTime();
+      } else if (sortColumn === 'fileSize') {
+        // Numeric comparison for file size
+        const aSize = a.fileSize || 0;
+        const bSize = b.fileSize || 0;
+        comparison = aSize - bSize;
+      } else if (sortColumn === 'preachingHistory') {
+        // Numeric comparison for preaching count
+        const aCount = a.preachingHistory ? a.preachingHistory.length : 1;
+        const bCount = b.preachingHistory ? b.preachingHistory.length : 1;
+        comparison = aCount - bCount;
+      } else {
+        // String comparison
+        comparison = aValue.localeCompare(bValue);
+      }
+      
+      return sortDirection === 'asc' ? comparison : -comparison;
+    }
+
+    // Default: Sort by date chronologically (newest first)
+    return b.date.getTime() - a.date.getTime();
+  });
+
+  // Generate unique lists for sidebar filters
+  const uniqueSpeakers = Array.from(new Set(sermons.map(sermon => sermon.speaker))).sort();
+  const uniqueTypes = Array.from(new Set(sermons.map(sermon => sermon.type).filter(Boolean) as string[])).sort();
+  const uniquePlaces = Array.from(new Set(sermons.map(sermon => sermon.place).filter(Boolean) as string[])).sort();
+
+  // CSV utility functions
+  const parseCSV = (csvContent: string): Sermon[] => {
+    const lines = csvContent.trim().split('\n');
+    const sermons: Sermon[] = [];
+
+    for (let i = 1; i < lines.length; i++) {
+      const values = lines[i].split(',').map(v => v.trim().replace(/"/g, ''));
+      if (values.length >= 6) {
+        const sermon: Sermon = {
+          id: Date.now().toString() + Math.random(),
+          title: values[0] || 'Untitled',
+          speaker: values[1] || 'Unknown Speaker',
+          date: values[2] ? new Date(values[2]) : new Date(),
+          series: values[3] || undefined,
+          summary: values[4] || '',
+          tags: values[5] ? values[5].split(';').filter(t => t.length > 0) : [],
+          references: values[6] ? values[6].split(';').filter(r => r.length > 0) : [],
+          type: values[7] || '',
+          place: values[8] || '',
+          preachingHistory: [{
+            id: Date.now().toString(),
+            date: values[2] ? new Date(values[2]) : new Date(),
+            location: values[8] || 'Unknown Location'
+          }]
+        };
+        sermons.push(sermon);
+      }
+    }
+    return sermons;
+  };
+
+  const sermonsToCsv = (sermons: Sermon[]): string => {
+    const headers = ['Title', 'Speaker', 'Date', 'Series', 'Summary', 'Tags', 'References', 'Type', 'Place'];
+    const rows = [headers.join(',')];
+
+    sermons.forEach(sermon => {
+      const row = [
+        `"${sermon.title}"`,
+        `"${sermon.speaker}"`,
+        `"${sermon.date.toISOString().split('T')[0]}"`,
+        `"${sermon.series || ''}"`,
+        `"${sermon.summary || ''}"`,
+        `"${sermon.tags.join(';')}"`,
+        `"${sermon.references?.join(';') || ''}"`,
+        `"${sermon.type || ''}"`,
+        `"${sermon.place || ''}"`
+      ];
+      rows.push(row.join(','));
+    });
+
+    return rows.join('\n');
+  };
+
+  // Settings handlers
+  const handleImport = async () => {
+    console.log('CSV Import requested');
+    alert('CSV Import: This will open a file dialog to import sermons from CSV. (Electron required for full functionality)');
+    if (window.electronAPI) {
+      try {
+        const filePath = await window.electronAPI.selectFile();
+        if (filePath && filePath.endsWith('.csv')) {
+          // Read CSV file content
+          const csvContent = await window.electronAPI.readFile(filePath);
+          const importedSermons = parseCSV(csvContent);
+          setSermons(prevSermons => [...prevSermons, ...importedSermons]);
+          console.log(`Imported ${importedSermons.length} sermons from CSV`);
+          alert(`Successfully imported ${importedSermons.length} sermons!`);
+        }
+      } catch (error) {
+        console.error('Error importing CSV:', error);
+        alert('Error importing CSV: ' + error);
+      }
+    }
+  };
+
+  const handleExport = async () => {
+    console.log('CSV Export requested');
+    alert('CSV Export: This will save your sermons to a CSV file. (Electron required for full functionality)');
+    if (window.electronAPI) {
+      try {
+        const csvContent = sermonsToCsv(sermons);
+        const filePath = await window.electronAPI.saveFile('sermons.csv', csvContent);
+        if (filePath) {
+          console.log(`Exported ${sermons.length} sermons to ${filePath}`);
+          alert(`Successfully exported ${sermons.length} sermons to ${filePath}!`);
+        }
+      } catch (error) {
+        console.error('Error exporting CSV:', error);
+        alert('Error exporting CSV: ' + error);
+      }
+    }
+  };
+
+  const handleBackup = () => {
+    console.log('Backup requested');
+    alert('Backup feature clicked! This will create a backup of your sermon library.');
+    // TODO: Implement backup functionality
+  };
+
+  const handleRestore = () => {
+    console.log('Restore requested');
+    alert('Restore feature clicked! This will restore your sermon library from a backup.');
+    // TODO: Implement restore functionality
+  };
+
+  const handleChooseColumns = () => {
+    setIsColumnChooserOpen(true);
+    console.log('Choose columns modal opened');
+  };
+
+  const handleSaveColumns = (newColumns: ColumnConfig[]) => {
+    setColumnConfig(newColumns);
+    console.log('Column configuration updated:', newColumns);
+  };
+
+  const handleSort = (columnKey: string) => {
+    if (sortColumn === columnKey) {
+      // Toggle sort direction
+      if (sortDirection === 'asc') {
+        setSortDirection('desc');
+      } else if (sortDirection === 'desc') {
+        setSortDirection(null);
+        setSortColumn('');
+      } else {
+        setSortDirection('asc');
+      }
+    } else {
+      setSortColumn(columnKey);
+      setSortDirection('asc');
+    }
+  };
+
+  return (
+    <div className="app">
+      <Toolbar 
+        onFiltersChange={setFilters}
+        onViewSettingsChange={setViewSettings}
+        viewSettings={viewSettings}
+        selectedSermon={selectedSermon}
+        onAddSermon={handleAddSermon}
+        onEditSermon={handleEditSermon}
+        onImport={handleImport}
+        onExport={handleExport}
+        onBackup={handleBackup}
+        onRestore={handleRestore}
+      />
+      <div className="app-content">
+        <Sidebar 
+          selectedSeries={filters.series}
+          onSeriesSelect={handleSeriesSelect}
+          currentView={currentView}
+          onViewChange={setCurrentView}
+          filters={filters}
+          onFiltersChange={setFilters}
+          speakers={uniqueSpeakers}
+          types={uniqueTypes}
+          places={uniquePlaces}
+        />
+        
+        {currentView === 'sermons' ? (
+          <SermonList 
+            sermons={sortedSermons}
+            selectedSermon={selectedSermon}
+            onSermonSelect={setSelectedSermon}
+            onSermonDoubleClick={handleSermonDoubleClick}
+            onChooseColumns={handleChooseColumns}
+            columnConfig={columnConfig}
+            viewSettings={viewSettings}
+            sortColumn={sortColumn}
+            sortDirection={sortDirection}
+            onSort={handleSort}
+          />
+        ) : (
+          <SeriesList
+            series={series}
+            selectedSeries={selectedSeries}
+            onSeriesSelect={handleSeriesClick}
+          />
+        )}
+        
+        {currentView === 'sermons' ? (
+          <PreviewPane 
+            sermon={selectedSermon}
+            onImageClick={handleImageClick}
+          />
+        ) : (
+          <SeriesPreview
+            series={selectedSeries}
+            sermons={selectedSeries ? getSeriesSermons(selectedSeries) : []}
+            onSermonClick={(sermon) => {
+              setCurrentView('sermons');
+              setSelectedSermon(sermonToExpanded(sermon));
+              setFilters({ ...filters, series: sermon.series });
+            }}
+          />
+        )}
+      </div>
+      
+      <SermonDetailsModal
+        isOpen={isModalOpen}
+        sermon={editingSermon}
+        onClose={() => {
+          setIsModalOpen(false);
+          setEditingSermon(null);
+        }}
+        onSave={handleSaveSermon}
+        onDelete={handleDeleteSermon}
+      />
+      
+      <ImageViewer
+        isOpen={imageViewerOpen}
+        imageSrc={imageViewerSrc}
+        onClose={() => setImageViewerOpen(false)}
+      />
+      
+      <ColumnChooser
+        isOpen={isColumnChooserOpen}
+        onClose={() => setIsColumnChooserOpen(false)}
+        columns={columnConfig}
+        onSave={handleSaveColumns}
+      />
+    </div>
+  );
+}
+
+export default App;
