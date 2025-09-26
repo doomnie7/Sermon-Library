@@ -83,7 +83,7 @@ const SermonDetailsModal: React.FC<SermonDetailsModalProps> = ({
       
       return () => clearTimeout(timer);
     }
-  }, [isOpen, sermon, formData.title]);
+  }, [isOpen, sermon]);
 
   // Update form data when sermon prop changes
   useEffect(() => {

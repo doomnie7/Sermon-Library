@@ -84,6 +84,7 @@ function App() {
   const [imageViewerSrc, setImageViewerSrc] = useState('');
   const [isColumnChooserOpen, setIsColumnChooserOpen] = useState(false);
   const [dataManuallyRestored, setDataManuallyRestored] = useState(false); // Track if data was manually restored
+  const [imageRefreshKey, setImageRefreshKey] = useState(0); // Force refresh of images
 
   // Refs to maintain current state for auto-backup
   const sermonsRef = useRef<Sermon[]>([]);
@@ -849,6 +850,17 @@ function App() {
   const handleImageClick = (imageSrc: string) => {
     setImageViewerSrc(imageSrc);
     setImageViewerOpen(true);
+  };
+
+  const handleSeriesImageChange = (seriesId: string, imagePath: string | null) => {
+    setSeries(prevSeries => 
+      prevSeries.map(series => 
+        series.id === seriesId 
+          ? { ...series, image: imagePath || undefined }
+          : series
+      )
+    );
+    setImageRefreshKey(prev => prev + 1); // Force refresh of all images
   };
 
   const handleSeriesSelect = (seriesTitle: string | undefined) => {
@@ -1643,7 +1655,20 @@ Continue with import?`;
 
   // Compute unique values for filters
   const types = Array.from(new Set(sermons.map(sermon => sermon.type).filter(Boolean))) as string[];
-  const places = Array.from(new Set(sermons.map(sermon => sermon.place).filter(Boolean))) as string[];
+  
+  // Collect places from both sermon.place and all preaching history locations
+  const allPlaces = sermons.flatMap(sermon => {
+    const places = [];
+    if (sermon.place) {
+      places.push(sermon.place);
+    }
+    if (sermon.preachingHistory) {
+      places.push(...sermon.preachingHistory.map(instance => instance.location));
+    }
+    return places;
+  });
+  const places = Array.from(new Set(allPlaces.filter(Boolean))) as string[];
+  
   const tags = Array.from(new Set(sermons.flatMap(sermon => sermon.tags)));
 
   return (
@@ -1687,6 +1712,9 @@ Continue with import?`;
             series={series}
             selectedSeries={selectedSeries}
             onSeriesSelect={handleSeriesClick}
+            viewSettings={viewSettings}
+            imageRefreshKey={imageRefreshKey}
+            sermons={sermons}
           />
         )}
         
@@ -1704,6 +1732,8 @@ Continue with import?`;
               setSelectedSermon(sermonToExpanded(sermon));
               setFilters({ ...filters, series: sermon.series });
             }}
+            onImageChange={handleSeriesImageChange}
+            onImageClick={handleImageClick}
           />
         )}
       </div>

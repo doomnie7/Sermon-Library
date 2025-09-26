@@ -1,6 +1,6 @@
 # 📚 Sermon Library
 
-A modern desktop application for managing sermon libraries, inspired by Calibre. Built with Electron, React, and TypeScript.
+A modern desktop application for managing sermon libraries. Built with Electron, React, and TypeScript.
 
 ![Sermon Library](https://img.shields.io/badge/Electron-React-TypeScript-blue)
 ![Version](https://img.shields.io/badge/version-1.0.0-green)

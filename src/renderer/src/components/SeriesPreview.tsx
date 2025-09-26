@@ -1,19 +1,48 @@
 import { Series, Sermon } from '../types';
 import { Calendar, FileText } from 'lucide-react';
 import { format } from 'date-fns';
+import ImageUpload from './ImageUpload';
 import './SeriesPreview.css';
 
 interface SeriesPreviewProps {
   series: Series | null;
   sermons: Sermon[];
   onSermonClick?: (sermon: Sermon) => void;
+  onImageChange?: (seriesId: string, imagePath: string | null) => void;
+  onImageClick?: (imageSrc: string) => void;
+  imageRefreshKey?: number;
 }
 
 const SeriesPreview: React.FC<SeriesPreviewProps> = ({ 
   series, 
   sermons,
-  onSermonClick 
+  onSermonClick,
+  onImageChange,
+  imageRefreshKey = 0
 }) => {
+  // Determine which image to use: series image or first sermon image as fallback
+  const getImageToDisplay = () => {
+    // If series has a custom image, use that
+    if (series?.image) {
+      return series.image;
+    }
+    
+    // Otherwise, use the first sermon's image as fallback
+    if (series && sermons.length > 0) {
+      // Sort sermons by series order or date to get the first one
+      const sortedSermons = [...sermons].sort((a, b) => {
+        if (a.seriesOrder && b.seriesOrder) {
+          return a.seriesOrder - b.seriesOrder;
+        }
+        return a.date.getTime() - b.date.getTime();
+      });
+      
+      const firstSermon = sortedSermons[0];
+      return firstSermon?.image;
+    }
+    
+    return '';
+  };
   if (!series) {
     return (
       <div className="series-preview">
@@ -27,6 +56,22 @@ const SeriesPreview: React.FC<SeriesPreviewProps> = ({
 
   return (
     <div className="series-preview">
+      <div className="series-preview-image-section">
+        <div className="series-preview-image-upload">
+          <ImageUpload
+            value={getImageToDisplay()}
+            onChange={(imagePath: string | null) => onImageChange && series && onImageChange(series.id, imagePath)}
+            placeholder="Drop series image here or right-click to add"
+            imageRefreshKey={imageRefreshKey}
+          />
+        </div>
+        {!series?.image && getImageToDisplay() && (
+          <div className="series-image-fallback-indicator">
+            <span>Using first sermon image</span>
+          </div>
+        )}
+      </div>
+
       <div className="series-preview-header">
         <h2 className="series-preview-title">{series.title}</h2>
         <div className="series-preview-metadata">

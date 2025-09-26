@@ -1,6 +1,6 @@
 {
   "name": "sermon-library",
-  "version": "1.0.0",
+  "version": "1.2.0",
   "description": "A desktop application for managing sermon libraries, inspired by Calibre",
   "main": "dist/main.js",
   "homepage": "./",

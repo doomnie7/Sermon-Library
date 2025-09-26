@@ -47,6 +47,7 @@ export interface Series {
   endDate?: Date;
   sermons: string[]; // sermon IDs
   tags: string[];
+  image?: string; // Path to series image (max 800x800px, compressed)
 }
 
 export interface FilterOptions {
