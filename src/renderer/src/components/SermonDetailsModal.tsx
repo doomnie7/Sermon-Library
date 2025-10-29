@@ -70,6 +70,9 @@ const SermonDetailsModal: React.FC<SermonDetailsModalProps> = ({
   // Focus the title input when modal opens
   useEffect(() => {
     if (isOpen && titleInputRef.current) {
+      if (window.electronAPI) {
+        window.electronAPI.focusWindow();
+      }
       // Use setTimeout to ensure the modal is fully rendered
       const timer = setTimeout(() => {
         if (titleInputRef.current) {

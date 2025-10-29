@@ -38,6 +38,9 @@ const electronAPI = {
   getDarkMode: () => ipcRenderer.invoke('get-dark-mode'),
   onToggleDarkMode: (callback: (isDark: boolean) => void) => ipcRenderer.on('toggle-dark-mode', (_, isDark) => callback(isDark)),
   
+  // Window management
+  focusWindow: () => ipcRenderer.send('focus-window'),
+
   // Image handling
   selectImage: () => ipcRenderer.invoke('select-image'),
   saveSermonImage: (imageData: string, sermonId: string) => ipcRenderer.invoke('save-sermon-image', imageData, sermonId),

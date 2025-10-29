@@ -389,6 +389,13 @@ ipcMain.handle('read-file', async (_event, filePath: string) => {
   }
 });
 
+// Add a handler to focus the main window
+ipcMain.on('focus-window', () => {
+  if (mainWindow) {
+    mainWindow.focus();
+  }
+});
+
 function getSermonLibraryDataPath(subpath = ''): string {
   const appDataDir = path.join(userDataPath, 'SermonLibrary');
   return path.join(appDataDir, subpath);
